@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+
+//Alteração teste git
 public class PrincipalBusca {
     public static void main(String[] args) throws IOException, InterruptedException {
         Scanner leitura = new Scanner(System.in);
