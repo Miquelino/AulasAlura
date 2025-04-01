@@ -12,6 +12,17 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner leitura = new Scanner(System.in);
+
+        System.out.println("Digite um número pra ver a tabuada: ");
+        int v = leitura.nextInt();
+
+        for (int i = 1; i < 11; i++){
+            int valor = v * i;
+
+            System.out.println(valor);
+        }
+
+        /*Scanner leitura = new Scanner(System.in);
         System.out.println("Digite o nome de usuário do GitHub para consultar informações: ");
         String username = leitura.nextLine();
 
@@ -40,6 +51,6 @@ public class Main {
             e.printStackTrace();
         } catch (ErroConsultaGitHubException e) {
             System.out.println(e.getMessage());
-        }
+        }*/
     }
 }
