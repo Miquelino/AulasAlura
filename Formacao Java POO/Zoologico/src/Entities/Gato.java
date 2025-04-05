@@ -29,7 +29,7 @@ public class Gato extends Animal{
 
     @Override
     public String descricao() {
-        return "Nome: " + this.getNome() + " idade = " + this.getIdade() + " raça = " + this.getRaca();
+        return "Nome: " + this.getNome() + ", idade = " + this.getIdade() + ", raça = " + this.getRaca();
     }
 
 }

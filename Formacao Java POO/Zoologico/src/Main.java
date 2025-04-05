@@ -3,25 +3,26 @@ import Entities.Gato;
 import Entities.Leao;
 import Entities2.Entrada;
 
+import java.util.ArrayList;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-
-
-
 
         //Cachorro
         Cachorro cachorro1 = new Cachorro("Tico", 2, "Pincher");
         System.out.println(cachorro1.descricao());
         System.out.println(cachorro1.emitirSom());
         System.out.println(cachorro1.abanarRabo());
+        System.out.println();
 
         //Gato
         Gato gato1 = new Gato("Nina", 3, "Siames");
         System.out.println(gato1.descricao());
         System.out.println(gato1.emitirSom());
         System.out.println(gato1.arranharMoveis());
+        System.out.println();
 
         //Leao
         Leao leao1 = new Leao("Simba", 8, 'M');
@@ -30,8 +31,10 @@ public class Main {
         System.out.println(leao1.descricao());
         System.out.println(leao1.emitirSom());
         System.out.println(leao2.descricao());
+        System.out.println();
 
         //Cliente
+
         Entrada pessoa1 = new Entrada("Andre", 25);
         Entrada pessoa2 = new Entrada("Junior", 9);
         Entrada pessoa3 = new Entrada("Ariane", 20);
@@ -39,6 +42,11 @@ public class Main {
         pessoa2.pagamento();
         pessoa3.setCarterinha(12365493);
         pessoa3.pagamento();
+
+        ArrayList<Entrada> visitante = new ArrayList<>();
+        visitante.add(pessoa1);
+        visitante.add(pessoa2);
+        visitante.add(pessoa3);
 
     }
 }

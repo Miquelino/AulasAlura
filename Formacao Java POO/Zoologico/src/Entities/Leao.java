@@ -47,9 +47,9 @@ public class Leao extends Animal implements ProibidoEntrar {
         super.descricao();
         AnimalPerigoso();
         if (getLiderenca() == "Lider" && getSexo() == 'M'){
-            return "Nome: " + this.getNome() + " idade = " + this.getIdade() + " é o " + this.liderenca + " do bando";
+            return "Nome: " + this.getNome() + ", idade = " + this.getIdade() + " é o " + this.liderenca + " do bando";
         }
-        return "Nome: " + this.getNome() + " idade: " + this.getIdade() + " sexo: " + sexo;
+        return "Nome: " + this.getNome() + ", idade: " + this.getIdade() + " sexo: " + sexo;
     }
 
 }
