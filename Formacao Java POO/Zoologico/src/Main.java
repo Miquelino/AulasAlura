@@ -4,12 +4,61 @@ import Entities.Leao;
 import Entities2.Entrada;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
+        //HashMap<Integer, String> objetos = new HashMap<>();
+        Scanner leitura = new Scanner(System.in);
 
+        System.out.println("BEM VINDO AO ZOOLOGICO DO MENININHO");
+        System.out.println("------------------------------");
+
+        System.out.println("Quantas pessoas vão entrar?");
+        int numeroPessoas = leitura.nextInt();
+
+        //int[] quantidade = new int[numeroPessoas];
+
+        double total = 0.0; // pessoa[i].pagamento();
+
+        Entrada[] pessoa = new Entrada[numeroPessoas];
+        //numeroPessoas += numeroPessoas;
+        for (int i = 0; i < numeroPessoas; i++){
+
+            System.out.println("Nome: ");
+            String nome = leitura.next();
+            System.out.println("Idade: ");
+            int idade = leitura.nextInt();
+
+            pessoa[i] = new Entrada(nome, idade);
+
+            if (idade > 18){
+                System.out.println("Você é estudante? Digite 1 para sim e 2 para não: ");
+                int estudante = leitura.nextInt();
+                if (estudante == 1 && idade > 18){
+                    pessoa[i].setCarterinha(12234344);
+                } else {
+                    System.out.println("Seguir...");
+                }
+            }
+
+            total += pessoa[i].pagamento();
+            //System.out.println(pessoa[i].toString());
+            System.out.println();
+        }
+        for (int i = 0; i < numeroPessoas; i++){
+            System.out.println(pessoa[i].toString());
+        }
+
+        System.out.println();
+        System.out.println("Total a ser pago: " + total);
+        System.out.println();
+
+
+        System.out.println("----------- ZOOLOGICO -----------");
         //Cachorro
         Cachorro cachorro1 = new Cachorro("Tico", 2, "Pincher");
         System.out.println(cachorro1.descricao());
@@ -33,20 +82,7 @@ public class Main {
         System.out.println(leao2.descricao());
         System.out.println();
 
-        //Cliente
 
-        Entrada pessoa1 = new Entrada("Andre", 25);
-        Entrada pessoa2 = new Entrada("Junior", 9);
-        Entrada pessoa3 = new Entrada("Ariane", 20);
-        pessoa1.pagamento();
-        pessoa2.pagamento();
-        pessoa3.setCarterinha(12365493);
-        pessoa3.pagamento();
-
-        ArrayList<Entrada> visitante = new ArrayList<>();
-        visitante.add(pessoa1);
-        visitante.add(pessoa2);
-        visitante.add(pessoa3);
 
     }
 }

@@ -37,16 +37,24 @@ public class Entrada {
         this.carterinha = carterinha;
     }
 
-    public void pagamento(){
+    public double pagamento(){
         if(getIdade() <= 10){
             pagar /= 2;
             System.out.println("O " + getNome() + " é criança paga meia: " + pagar);
+            return pagar;
         } else if (getCarterinha() != 0 ){
             pagar /= 2;
             System.out.println("O " + getNome() + " é Estudante paga meia: " + pagar);
+            return pagar;
         } else {
             System.out.println("O " + getNome() + "  é adulto paga inteira: " + pagar);
+            return pagar;
         }
     }
-        
+
+    @Override
+    public String toString() {
+        return "Nome = " + nome +
+                " Idade = " + idade;
+    }
 }
