@@ -4,11 +4,26 @@ import Interfaces.Operacao;
 import Interfaces.Palindromo;
 import Interfaces.Primo;
 
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        LocalDate hoje = LocalDate.now();
+        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        System.out.println(hoje.format(formatador));
+
+        LocalDate aniversarioAlice = LocalDate.of(2005, Month.SEPTEMBER, 15);
+        System.out.println(aniversarioAlice.format(formatador));
+
+        int idade =  hoje.getYear() - aniversarioAlice.getYear();
+        System.out.println(idade);
+
+        Period periodo = Period.between(hoje, aniversarioAlice);
 
         // 1 - Expressões lambda para operações matemáticas simples.
         // Interface 'Operacao' possui método: int calcular(int a, int b)

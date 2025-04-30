@@ -1,6 +1,7 @@
 package AulaSpringWeb.screenmatch.principal;
 
 import AulaSpringWeb.screenmatch.model.DadosEpisodio;
+import AulaSpringWeb.screenmatch.model.DadosSerie;
 import AulaSpringWeb.screenmatch.model.DadosTemporadas;
 import AulaSpringWeb.screenmatch.model.TodosEpisodios;
 import AulaSpringWeb.screenmatch.service.ConsumoAPI;
