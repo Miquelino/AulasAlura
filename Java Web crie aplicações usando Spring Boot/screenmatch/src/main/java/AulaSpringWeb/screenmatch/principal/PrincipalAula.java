@@ -15,14 +15,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.summarizingDouble;
-
 public class PrincipalAula {
     private Scanner leitura = new Scanner(System.in);
     private ConsumoAPI consumo = new ConsumoAPI();
     private ConverterDados conversor = new ConverterDados();
 
-    private String idSerie = "1396"; // ID de Breaking Bad no TMDb
     private int totalTemporadas = 0;
 
     private final String ENDERECO = "https://api.themoviedb.org/3/search/tv?";
