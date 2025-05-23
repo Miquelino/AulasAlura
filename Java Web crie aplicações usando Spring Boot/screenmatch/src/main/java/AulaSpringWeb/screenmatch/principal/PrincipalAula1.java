@@ -1,6 +1,7 @@
 package AulaSpringWeb.screenmatch.principal;
 
 import AulaSpringWeb.screenmatch.model.*;
+import AulaSpringWeb.screenmatch.repository.serieRepository;
 import AulaSpringWeb.screenmatch.service.ConsumoAPI;
 import AulaSpringWeb.screenmatch.service.ConverterDados;
 import AulaSpringWeb.screenmatch.service.DadosResultado;
@@ -21,6 +22,12 @@ public class PrincipalAula1 {
 
     private List<Serie> dadosSeries = new ArrayList<Serie>();
     private Map<Integer, String> nomeGeneros = new HashMap<>(); // Store genre names
+
+    private serieRepository repositorio;
+
+    public PrincipalAula1(serieRepository repositorio){
+        this.repositorio = repositorio;
+    }
 
     public void exibeMenu() {
         boolean continuar = true;
@@ -67,6 +74,7 @@ public class PrincipalAula1 {
         if (dados != null) {
             dadosSeries.add(dados);
             System.out.println(dados);
+
         }
     }
 
@@ -103,35 +111,53 @@ public class PrincipalAula1 {
         var detalhesTemporada = conversor.obterDados(detalhesJson, DadosTemporadas.class);
 
         Serie serie = new Serie(dados);  // Aqui você está passando o objeto 'dados' do tipo DadosSerie, o que é correto.
+
+
         if (detalhesTemporada != null) {
             serie.setTotalTemporadas(detalhesTemporada.totalTemporadas());
         }
-        return serie;
+
+        try {
+            String overview = serie.getSinopse();
+            if (overview != null && !overview.isBlank()) {
+                String traducao = MyMemoryTranslate.obterTraducao(overview);
+                serie.setSinopse(traducao);
+            }
+            repositorio.save(serie);
+            return serie;
+        } catch (Exception e) {
+            System.err.println("Erro ao processar série: " + e.getMessage());
+            return null;
+        }
+        //return serie;
+
     }
 
     private void listarSeriesBuscadas() {
-        List<Serie> series = dadosSeries.stream()
-                .map(serie -> {
-                    try {
-                        String overview = serie.getSinopse();
-                        if (overview != null && !overview.isBlank()) {
-                            String traducao = MyMemoryTranslate.obterTraducao(overview);
-                            serie.setSinopse(traducao);
-                        }
-                        return serie;
-                    } catch (Exception e) {
-                        System.err.println("Erro ao processar série: " + e.getMessage());
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .toList();
+        List<Serie> seriesDoBanco = repositorio.findAllWithGeneros();
+
+//                dadosSeries.stream()
+//                .map(serie -> {
+//                    try {
+//                        String overview = serie.getSinopse();
+//                        if (overview != null && !overview.isBlank()) {
+//                            String traducao = MyMemoryTranslate.obterTraducao(overview);
+//                            serie.setSinopse(traducao);
+//                        }
+//                        return serie;
+//                    } catch (Exception e) {
+//                        System.err.println("Erro ao processar série: " + e.getMessage());
+//                        return null;
+//                    }
+//                })
+//                .filter(Objects::nonNull)
+//                .toList();
 
         if (nomeGeneros.isEmpty()) {
             fetchGenreNames();
         }
 
-        series.forEach(serie -> {
+        seriesDoBanco.forEach(serie -> {
             String generosFormatados = serie.getGeneros().stream()
                     .map(id -> nomeGeneros.getOrDefault(id, "Desconhecido"))
                     .collect(Collectors.joining(", "));
