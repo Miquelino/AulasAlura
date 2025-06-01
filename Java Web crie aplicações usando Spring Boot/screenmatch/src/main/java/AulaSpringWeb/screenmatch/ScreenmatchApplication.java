@@ -1,6 +1,6 @@
 package AulaSpringWeb.screenmatch;
 
-import AulaSpringWeb.screenmatch.principal.Principal;
+
 import AulaSpringWeb.screenmatch.principal.PrincipalAula1;
 import AulaSpringWeb.screenmatch.repository.serieRepository;
 import org.springframework.beans.factory.annotation.Autowired;

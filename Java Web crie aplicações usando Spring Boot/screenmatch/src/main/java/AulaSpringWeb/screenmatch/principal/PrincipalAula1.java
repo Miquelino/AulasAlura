@@ -9,6 +9,7 @@ import AulaSpringWeb.screenmatch.service.MyMemoryTranslate;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PrincipalAula1 {
     private Scanner leitura = new Scanner(System.in);
@@ -17,15 +18,16 @@ public class PrincipalAula1 {
 
     private final String ENDERECO = "https://api.themoviedb.org/3/search/tv?";
     private final String ENDERECO2 = "https://api.themoviedb.org/3/tv/";
-    private final String ENDERECO_GENEROS = "https://api.themoviedb.org/3/genre/tv/list?"; // Endpoint for genres
+    private final String ENDERECO_GENEROS = "https://api.themoviedb.org/3/genre/tv/list?";
     private final String API_KEY = "api_key=adf7087c139b48d3eef7202f56ae8279";
 
-    private List<Serie> dadosSeries = new ArrayList<Serie>();
-    private Map<Integer, String> nomeGeneros = new HashMap<>(); // Store genre names
+    private Map<Integer, String> nomeGeneros = new HashMap<>();
 
     private serieRepository repositorio;
 
-    public PrincipalAula1(serieRepository repositorio){
+    private List<Serie> seriesDoBanco = new ArrayList<>();
+
+    public PrincipalAula1(serieRepository repositorio) {
         this.repositorio = repositorio;
     }
 
@@ -70,26 +72,54 @@ public class PrincipalAula1 {
     }
 
     private void buscarSerieWeb() {
-        Serie dados = getSerieCompleta();
-        if (dados != null) {
-            dadosSeries.add(dados);
-            System.out.println(dados);
-
+        Serie serieBuscada = getSerieCompleta();
+        if (serieBuscada != null) {
+            System.out.println("Série buscada e salva: " + serieBuscada.getTitulo());
         }
     }
 
     private void buscarEpisodioPorSerie() {
-        Serie dadosSerie = getSerieCompleta();
-        if (dadosSerie != null) {
+        listarSeriesBuscadas();
+        System.out.println("Escolha uma série pelo nome para buscar episódios: ");
+        var nomeSerie = leitura.nextLine();
+
+        Optional<Serie> serie = seriesDoBanco.stream()
+                .filter(s -> s.getTitulo().toLowerCase().contains(nomeSerie.toLowerCase()))
+                .findFirst();
+
+        if (serie.isPresent()) {
+            var serieEncontrada = serie.get();
             List<DadosTemporadas> temporadas = new ArrayList<>();
-            for (int i = 1; i <= dadosSerie.getTotalTemporadas(); i++) {
-                var json = consumo.obterDados(ENDERECO2 + dadosSerie.getTotalTemporadas() + "/season/" + i + "?" + API_KEY + "&language=pt-BR");
+
+            System.out.println("Buscando episódios para: " + serieEncontrada.getTitulo());
+
+            for (int i = 1; i <= serieEncontrada.getTotalTemporadas(); i++) {
+                var json = consumo.obterDados(ENDERECO2 + serieEncontrada.getId() + "/season/" + i + "?" + API_KEY + "&language=pt-BR");
                 DadosTemporadas dadosTemporada = conversor.obterDados(json, DadosTemporadas.class);
                 if (dadosTemporada != null) {
                     temporadas.add(dadosTemporada);
                 }
             }
-            temporadas.forEach(System.out::println);
+
+            List<Episodio> episodios = temporadas.stream()
+                    // Adicione a verificação de nulo aqui
+                    .flatMap(d -> {
+                        if (d.episodios() == null) {
+                            return Stream.empty(); // Retorna um stream vazio se a lista de episódios for nula
+                        }
+                        return d.episodios().stream();
+                    })
+                    .map(e -> new Episodio(e.numero(), e, serieEncontrada))
+                    .collect(Collectors.toList());
+
+            serieEncontrada.setEpisodios(episodios);
+            repositorio.save(serieEncontrada);
+            System.out.println("Episódios buscados e associados à série: " + serieEncontrada.getTitulo());
+
+            episodios.forEach(System.out::println);
+
+        } else {
+            System.out.println("Série não encontrada.");
         }
     }
 
@@ -106,16 +136,35 @@ public class PrincipalAula1 {
 
         DadosSerie dados = resultado.getResults().get(0);
 
-        // Recupera o número de temporadas
         var detalhesJson = consumo.obterDados(ENDERECO2 + dados.id() + "?" + API_KEY + "&language=pt-BR");
-        var detalhesTemporada = conversor.obterDados(detalhesJson, DadosTemporadas.class);
+        var detalhesSerieCompleta = conversor.obterDados(detalhesJson, DadosSerie.class);
 
-        Serie serie = new Serie(dados);  // Aqui você está passando o objeto 'dados' do tipo DadosSerie, o que é correto.
-
-
-        if (detalhesTemporada != null) {
-            serie.setTotalTemporadas(detalhesTemporada.totalTemporadas());
+        if (nomeGeneros.isEmpty()) {
+            fetchGenreNames();
         }
+
+        String primeiroGeneroNomePortugues = "Desconhecido";
+        if (dados.getGenreIds() != null && !dados.getGenreIds().isEmpty()) {
+            Integer primeiroGeneroId = dados.getGenreIds().get(0);
+            primeiroGeneroNomePortugues = nomeGeneros.getOrDefault(primeiroGeneroId, "Desconhecido");
+        }
+        Categoria categoriaDaSerie = Categoria.fromPortugues(primeiroGeneroNomePortugues);
+
+        Serie serie = new Serie(dados, categoriaDaSerie);
+
+        if (dados.totalTemporadas() != null) {
+            serie.setTotalTemporadas(dados.totalTemporadas());
+        } else if (detalhesSerieCompleta != null && detalhesSerieCompleta.totalTemporadas() != null) {
+            serie.setTotalTemporadas(detalhesSerieCompleta.totalTemporadas());
+        }
+
+        List<Genero> generosDaApi = new ArrayList<>();
+        if (dados.getGenreIds() != null) {
+            for (Integer generoId : dados.getGenreIds()) {
+                generosDaApi.add(new Genero(generoId, nomeGeneros.getOrDefault(generoId, "Desconhecido")));
+            }
+        }
+        serie.setGeneros(generosDaApi); // CORRIGIDO: de setGenero para setGeneros
 
         try {
             String overview = serie.getSinopse();
@@ -126,47 +175,38 @@ public class PrincipalAula1 {
             repositorio.save(serie);
             return serie;
         } catch (Exception e) {
-            System.err.println("Erro ao processar série: " + e.getMessage());
+            System.err.println("Erro ao processar série e/ou traduzir sinopse: " + e.getMessage());
             return null;
         }
-        //return serie;
-
     }
 
     private void listarSeriesBuscadas() {
-        List<Serie> seriesDoBanco = repositorio.findAllWithGeneros();
+        // Garanta que esta linha chame o método com a @Query configurada no repositório
+        seriesDoBanco = repositorio.findAllWithGeneros();
 
-//                dadosSeries.stream()
-//                .map(serie -> {
-//                    try {
-//                        String overview = serie.getSinopse();
-//                        if (overview != null && !overview.isBlank()) {
-//                            String traducao = MyMemoryTranslate.obterTraducao(overview);
-//                            serie.setSinopse(traducao);
-//                        }
-//                        return serie;
-//                    } catch (Exception e) {
-//                        System.err.println("Erro ao processar série: " + e.getMessage());
-//                        return null;
-//                    }
-//                })
-//                .filter(Objects::nonNull)
-//                .toList();
-
-        if (nomeGeneros.isEmpty()) {
-            fetchGenreNames();
+        if (seriesDoBanco.isEmpty()) {
+            System.out.println("Nenhuma série encontrada no banco de dados.");
+            return;
         }
 
         seriesDoBanco.forEach(serie -> {
-            String generosFormatados = serie.getGeneros().stream()
-                    .map(id -> nomeGeneros.getOrDefault(id, "Desconhecido"))
-                    .collect(Collectors.joining(", "));
+            String generosFormatados;
+            // CORRIGIDO: de serie.getGenero() para serie.getGeneros()
+            if (!serie.getGeneros().isEmpty()) {
+                // g.getNome() está correto aqui, pois Genero é uma classe agora
+                generosFormatados = serie.getGeneros().stream()
+                        .map(g -> g.getNome())
+                        .collect(Collectors.joining(", "));
+            } else {
+                generosFormatados = "Nenhum gênero";
+            }
+
             System.out.println(" Série: " + serie.getTitulo() +
                     "\n Avaliação: " + serie.getAvaliacao() +
                     "\n Gêneros: " + generosFormatados +
                     "\n Sinopse: " + serie.getSinopse() +
+                    "\n Categoria: " + serie.getCategoria().getNomePortugues() +
                     "\n");
-
         });
     }
 
@@ -179,9 +219,10 @@ public class PrincipalAula1 {
             return;
         }
 
-        // Preenche o mapa com ID e nome dos gêneros
+        // Lembre-se que getResultsGenero() deve retornar uma lista de objetos que Jackson pode mapear para Genero
+        // e que esses objetos tenham getId() e getNome() ou campos públicos 'id' e 'nome'.
         resultado.getResultsGenero().forEach(genero ->
-                nomeGeneros.put(genero.id(), genero.nome())
+                nomeGeneros.put(genero.getId(), genero.getNome())
         );
     }
 }

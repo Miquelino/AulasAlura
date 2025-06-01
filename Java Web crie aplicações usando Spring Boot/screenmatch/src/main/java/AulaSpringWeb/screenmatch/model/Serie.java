@@ -1,105 +1,84 @@
 package AulaSpringWeb.screenmatch.model;
 
-import AulaSpringWeb.screenmatch.service.MyMemoryTranslate;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "series")
 public class Serie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idPrimary;
-    private int id;
-    @Column(unique = true)
+    private Long id;
+
     private String titulo;
     private Double avaliacao;
-    private Integer totalTemporadas;
-    // Na sua classe Serie
-    @ElementCollection(fetch = FetchType.EAGER) // Adicione fetch = FetchType.EAGER
-    private List<Integer> generos = new ArrayList<>();
+    private String poster;
     private String sinopse;
-    @Transient
+    @Enumerated(EnumType.STRING)
+    private Categoria categoria;
+    private Integer totalTemporadas;
+
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episodio> episodios = new ArrayList<>();
 
-    public Serie(){
+    // Adicione 'cascade = CascadeType.PERSIST' aqui!
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST) // <--- LINHA ALTERADA
+    @JoinTable(
+            name = "serie_genero",
+            joinColumns = @JoinColumn(name = "serie_id"),
+            inverseJoinColumns = @JoinColumn(name = "genero_id")
+    )
+    private List<Genero> generos = new ArrayList<>(); // Mantenha Genero no singular aqui
 
+    public Serie() {
     }
 
-    // Construtor sem tradução
-    public Serie(DadosSerie dados) {
-        this.id = dados.id();
-        this.titulo = dados.titulo();
-        this.avaliacao = dados.avaliacao();
-        this.totalTemporadas = 0; // valor padrão
-        this.generos = dados.getGenreIds();
-        this.sinopse = dados.sinopse(); // Mantém a sinopse original
+    public Serie(DadosSerie dadosSerie, Categoria categoria) {
+        this.titulo = dadosSerie.titulo();
+        this.totalTemporadas = dadosSerie.totalTemporadas();
+        this.avaliacao = OptionalDouble.of(dadosSerie.avaliacao()).orElse(0.0);
+        this.poster = dadosSerie.poster();
+        this.sinopse = dadosSerie.sinopse();
+        this.categoria = categoria;
     }
 
-    // Método para traduzir a sinopse
-    public void traduzirSinopse() throws Exception {
-        this.sinopse = MyMemoryTranslate.obterTraducao(this.sinopse).trim();
-    }
-
-    // Getters e Setters
-    public List<Episodio> getEpisodios() {
-        return episodios;
-    }
-
+    // Getters e Setters (inalterados)
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public Double getAvaliacao() { return avaliacao; }
+    public void setAvaliacao(Double avaliacao) { this.avaliacao = avaliacao; }
+    public String getPoster() { return poster; }
+    public void setPoster(String poster) { this.poster = poster; }
+    public String getSinopse() { return sinopse; }
+    public void setSinopse(String sinopse) { this.sinopse = sinopse; }
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+    public Integer getTotalTemporadas() { return totalTemporadas; }
+    public void setTotalTemporadas(Integer totalTemporadas) { this.totalTemporadas = totalTemporadas; }
+    public List<Episodio> getEpisodios() { return episodios; }
     public void setEpisodios(List<Episodio> episodios) {
+        episodios.forEach(e -> e.setSerie(this));
         this.episodios = episodios;
     }
 
-    public int getIdPrimary() {
-        return idPrimary;
-    }
-
-    public void setIdPrimary(int idPrimary) {
-        this.idPrimary = idPrimary;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public Double getAvaliacao() {
-        return avaliacao;
-    }
-
-    public Integer getTotalTemporadas() {
-        return totalTemporadas;
-    }
-
-    public void setTotalTemporadas(Integer totalTemporadas) {
-        this.totalTemporadas = totalTemporadas;
-    }
-
-    public List<Integer> getGeneros() {
-        return generos;
-    }
-
-    public String getSinopse() {
-        return sinopse;
-    }
-
-    public void setSinopse(String sinopse) {
-        this.sinopse = sinopse;
-    }
+    // LINHA 68 (e a anterior)
+    public void setGeneros(List<Genero> generos) { this.generos = generos; }
+    public List<Genero> getGeneros() { return generos; }
 
     @Override
     public String toString() {
-        return "Serie{" +
-                "titulo='" + titulo + '\'' +
-                ", avaliacao=" + avaliacao +
-                ", totalTemporadas=" + totalTemporadas +
-                ", generos=" + generos +
-                ", sinopse='" + sinopse + '\'' +
-                '}';
+        return "Categoria: " + categoria +
+                ", Titulo: '" + titulo + '\'' +
+                ", Avaliacao: " + avaliacao +
+                ", Poster: '" + poster + '\'' +
+                ", Sinopse: '" + sinopse + '\'' +
+                ", TotalTemporadas: " + totalTemporadas +
+                ", Generos: " + generos.stream().map(Genero::getNome).collect(Collectors.joining(", ")) +
+                ", Episodios: " + episodios;
     }
 }

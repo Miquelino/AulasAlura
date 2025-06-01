@@ -13,10 +13,12 @@ public record DadosSerie(
         @JsonAlias("id") int id,
         @JsonAlias("genre_ids") List<Integer> genreIds,
         @JsonAlias("poster_path") String poster,
-        @JsonAlias("overview") String sinopse
+        @JsonAlias("overview") String sinopse,
+        @JsonAlias("number_of_seasons") Integer totalTemporadas // <--- ADICIONE ESTA LINHA
 ) {
 
     public List<Integer> getGenreIds() {
         return genreIds;
     }
+    // Como é um record, o método totalTemporadas() será gerado automaticamente.
 }
