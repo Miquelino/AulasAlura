@@ -1,22 +1,22 @@
 package Exercicio2.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name = "Categoria")
 public class Categoria {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
 
-    // ✅ Construtor padrão exigido pelo JPA
+    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Produto> produtos;
+
     public Categoria() {
     }
 
-    public Categoria(Long id, String nome) {
-        this.id = id;
+    public Categoria(String nome) {
         this.nome = nome;
     }
 
@@ -26,5 +26,9 @@ public class Categoria {
 
     public String getNome() {
         return nome;
+    }
+
+    public List<Produto> getProdutos() {
+        return produtos;
     }
 }

@@ -13,11 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class main implements CommandLineRunner {
 
 	@Autowired
-	private ProdutoRepository produto;
-	@Autowired
-	private CategoriaRepository categoria;
-	@Autowired
-	private PedidoRepository pedido;
+	private Principal principal;
 
 
 	public static void main(String[] args) {
@@ -26,8 +22,6 @@ public class main implements CommandLineRunner {
 
 	@Override
 	public void run (String... args) throws Exception{
-
-		Principal principal = new Principal(produto, categoria, pedido);
 		principal.exibirMenu();
 	}
 
