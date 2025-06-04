@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface serieRepository extends JpaRepository<Serie, Long> {
     Optional<Serie> findByTituloContainingIgnoreCase(String nomeSerie);
+    List<Serie> findByAtoresContainingIgnoreCase(String nomeAtor);
     // Esta anotação @Query é crucial para que o Spring Data JPA saiba como buscar os gêneros
     @Query("SELECT s FROM Serie s JOIN FETCH s.generos") // <-- Esta linha é a correção!
     List<Serie> findAllWithGeneros();

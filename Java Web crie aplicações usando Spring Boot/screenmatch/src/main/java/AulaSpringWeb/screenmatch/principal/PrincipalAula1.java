@@ -20,6 +20,8 @@ public class PrincipalAula1 {
     private final String ENDERECO2 = "https://api.themoviedb.org/3/tv/";
     private final String ENDERECO_GENEROS = "https://api.themoviedb.org/3/genre/tv/list?";
     private final String API_KEY = "api_key=adf7087c139b48d3eef7202f56ae8279";
+    private final String ENDERECO_ATOR = "https://api.themoviedb.org/3/search/person?";
+    private final String ENDERECO_CREDITOS_PESSOA = "https://api.themoviedb.org/3/person/"; // Concatene com ID e /combined_credits
 
     private Map<Integer, String> nomeGeneros = new HashMap<>();
 
@@ -40,6 +42,7 @@ public class PrincipalAula1 {
                     2 - Buscar episódios
                     3 - Listar séries buscadas
                     4 - Buscar serio por titulo
+                    5 - Buscar series por ator
                     0 - Sair
                     """;
 
@@ -62,6 +65,10 @@ public class PrincipalAula1 {
 
                 case 4:
                     buscarSeriePorTitulo();
+                    break;
+
+                case 5:
+                    buscarSeriesPorAtor();
                     break;
 
                 case 0:
@@ -135,6 +142,51 @@ public class PrincipalAula1 {
             System.out.println("Dados da serie: " + serieBuscada.get());
         } else {
             System.out.println("Serie não encontrada!");
+        }
+    }
+
+    // Em PrincipalAula1.java
+
+    private void buscarSeriesPorAtor() {
+        System.out.println("Digite o nome do ator:");
+        var nomeAtor = leitura.nextLine();
+
+        // 1. Buscar o ID do ator
+        var jsonPessoa = consumo.obterDados(ENDERECO_ATOR + API_KEY + "&query=" + nomeAtor.replace(" ", "%20"));
+        DadosResultadoPessoa resultadoPessoa = conversor.obterDados(jsonPessoa, DadosResultadoPessoa.class);
+
+        if (resultadoPessoa == null || resultadoPessoa.pessoas().isEmpty()) {
+            System.out.println("Ator não encontrado.");
+            return;
+        }
+
+        // Pega o primeiro ator encontrado na lista de resultados
+        DadosPessoa atorEncontrado = resultadoPessoa.pessoas().get(0);
+        System.out.println("Ator encontrado: " + atorEncontrado.name() + " (ID: " + atorEncontrado.id() + ")");
+
+        // 2. Buscar os créditos (séries/filmes) do ator
+        var jsonCreditos = consumo.obterDados(ENDERECO_CREDITOS_PESSOA + atorEncontrado.id() + "/combined_credits?" + API_KEY);
+        DadosCombinedCredits creditos = conversor.obterDados(jsonCreditos, DadosCombinedCredits.class);
+
+        if (creditos == null || creditos.creditos().isEmpty()) {
+            System.out.println("Nenhuma série encontrada para este ator.");
+            return;
+        }
+
+        System.out.println("\nSéries em que " + atorEncontrado.name() + " atuou:");
+        List<Serie> serieBuscada = repositorio.findByAtoresContainingIgnoreCase(nomeAtor);
+
+//        List<String> seriesDoAtor = creditos.creditos().stream()
+//                .filter(c -> "tv".equals(c.mediaType())) // Filtra apenas por séries ("tv" é o tipo de mídia para séries)
+//                .map(DadosCredito::titulo) // Pega o título da série
+//                .distinct() // Remove títulos duplicados, caso o ator esteja em várias temporadas da mesma série
+//                .sorted() // Opcional: ordena os títulos
+//                .collect(Collectors.toList());
+
+        if (serieBuscada.isEmpty()) {
+            System.out.println("Nenhuma série encontrada para este ator (apenas filmes ou outros tipos de mídia).");
+        } else {
+            serieBuscada.forEach(s -> System.out.println(s.getTitulo()));
         }
     }
 

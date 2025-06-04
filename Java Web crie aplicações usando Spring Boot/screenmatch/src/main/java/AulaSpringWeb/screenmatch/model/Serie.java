@@ -19,6 +19,7 @@ public class Serie {
     private String sinopse;
     @Enumerated(EnumType.STRING)
     private Categoria categoria;
+    private String atores;
     private Integer totalTemporadas;
 
     @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -46,6 +47,7 @@ public class Serie {
     }
 
     // Getters e Setters (inalterados)
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getTitulo() { return titulo; }
@@ -64,6 +66,14 @@ public class Serie {
     public void setEpisodios(List<Episodio> episodios) {
         episodios.forEach(e -> e.setSerie(this));
         this.episodios = episodios;
+    }
+
+    public String getAtores() {
+        return atores;
+    }
+
+    public void setAtores(String atores) {
+        this.atores = atores;
     }
 
     // LINHA 68 (e a anterior)
