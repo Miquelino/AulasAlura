@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="a3846649-4e7c-4c2a-848d-1ab1c918f58f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/model/Ator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/model/DadosAtorCreditos.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/model/DadosCreditos.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/repository/AtorRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/repository/GeneroRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/ScreenmatchApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/ScreenmatchApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/model/Genero.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/model/Genero.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/model/Serie.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/model/Serie.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/principal/PrincipalAula1.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/principal/PrincipalAula1.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/repository/serieRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/java/AulaSpringWeb/screenmatch/repository/serieRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../Java Web crie aplicações usando Spring Boot/screenmatch/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Exercicio2/src/main/java/Exercicio2/Principal/Principal.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Exercicio2/src/main/java/Exercicio2/Principal/Principal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Exercicio2/src/main/java/Exercicio2/repository/CategoriaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Exercicio2/src/main/java/Exercicio2/repository/CategoriaRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Exercicio2/src/main/java/Exercicio2/repository/PedidoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Exercicio2/src/main/java/Exercicio2/repository/PedidoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Exercicio2/src/main/java/Exercicio2/repository/ProdutoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Exercicio2/src/main/java/Exercicio2/repository/ProdutoRepository.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="2y9Wah9qASzTsB7sBPJWQMvFLNX" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Windows/Desktop/Projetos Java/Alura/Java persistência de dados e consultas com Spring Data JPA/Exercicio4"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a3846649-4e7c-4c2a-848d-1ab1c918f58f" name="Changes" comment="" />
+      <created>1749247350490</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1749247350490</updated>
+    </task>
+    <servers />
+  </component>
+</project>

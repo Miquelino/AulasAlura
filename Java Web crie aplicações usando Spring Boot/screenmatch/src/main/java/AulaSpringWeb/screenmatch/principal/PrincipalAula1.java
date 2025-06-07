@@ -1,11 +1,15 @@
 package AulaSpringWeb.screenmatch.principal;
 
 import AulaSpringWeb.screenmatch.model.*;
+import AulaSpringWeb.screenmatch.repository.AtorRepository; // <-- Importe AtorRepository
+import AulaSpringWeb.screenmatch.repository.GeneroRepository;
 import AulaSpringWeb.screenmatch.repository.serieRepository;
 import AulaSpringWeb.screenmatch.service.ConsumoAPI;
 import AulaSpringWeb.screenmatch.service.ConverterDados;
 import AulaSpringWeb.screenmatch.service.DadosResultado;
 import AulaSpringWeb.screenmatch.service.MyMemoryTranslate;
+import org.springframework.transaction.annotation.Transactional; // Importe para o @Transactional
+import AulaSpringWeb.screenmatch.model.DadosCreditos; // <-- MANTENHA/ADICIONE ESTA LINHA!
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,17 +24,24 @@ public class PrincipalAula1 {
     private final String ENDERECO2 = "https://api.themoviedb.org/3/tv/";
     private final String ENDERECO_GENEROS = "https://api.themoviedb.org/3/genre/tv/list?";
     private final String API_KEY = "api_key=adf7087c139b48d3eef7202f56ae8279";
-    private final String ENDERECO_ATOR = "https://api.themoviedb.org/3/search/person?";
-    private final String ENDERECO_CREDITOS_PESSOA = "https://api.themoviedb.org/3/person/"; // Concatene com ID e /combined_credits
+    private final String ENDERECO_PESSOA = "https://api.themoviedb.org/3/search/person?";
+    private final String ENDERECO_CREDITOS_PESSOA = "https://api.themoviedb.org/3/person/";
 
     private Map<Integer, String> nomeGeneros = new HashMap<>();
 
-    private serieRepository repositorio;
+    private serieRepository repositorioSerie;
+    private GeneroRepository repositorioGenero;
+    private AtorRepository repositorioAtor; // <-- NOVO: Injeção do repositório de Ator
 
     private List<Serie> seriesDoBanco = new ArrayList<>();
 
-    public PrincipalAula1(serieRepository repositorio) {
-        this.repositorio = repositorio;
+    private Optional<Serie> serieBusca;
+
+    // --- CONSTRUTOR ATUALIZADO PARA INJETAR AtorRepository ---
+    public PrincipalAula1(serieRepository repositorioSerie, GeneroRepository repositorioGenero, AtorRepository repositorioAtor) {
+        this.repositorioSerie = repositorioSerie;
+        this.repositorioGenero = repositorioGenero;
+        this.repositorioAtor = repositorioAtor; // <-- NOVO
     }
 
     public void exibeMenu() {
@@ -38,11 +49,17 @@ public class PrincipalAula1 {
 
         while (continuar) {
             var menu = """
-                    1 - Buscar séries
-                    2 - Buscar episódios
-                    3 - Listar séries buscadas
-                    4 - Buscar serio por titulo
-                    5 - Buscar series por ator
+                    1 - Buscar séries (na web e salvar)
+                    2 - Buscar episódios de uma série (já salva)
+                    3 - Listar séries buscadas (do banco)
+                    4 - Buscar série por título (no banco)
+                    5 - Buscar séries por ator (no banco ou na web)
+                    6 - Buscar top 5 series
+                    7 - Buscar series por categoria
+                    8 - Filtrar series
+                    9 - Buscar episodio por trecho
+                    10 - Top 5 episodios por serie
+                    11 - Buscar episodios a partir de uma data
                     0 - Sair
                     """;
 
@@ -54,28 +71,41 @@ public class PrincipalAula1 {
                 case 1:
                     buscarSerieWeb();
                     break;
-
                 case 2:
                     buscarEpisodioPorSerie();
                     break;
-
                 case 3:
                     listarSeriesBuscadas();
                     break;
-
                 case 4:
-                    buscarSeriePorTitulo();
+                    buscarSeriePorTituloNoBanco();
                     break;
-
                 case 5:
-                    buscarSeriesPorAtor();
+                    buscarSeriesPorAtor(); // <-- Lógica alterada aqui
                     break;
 
+                case 6:
+                    buscarTop5Series();
+                    break;
+                case 7:
+                    buscarSeriesPorCategoria();
+                    break;
+                case 8:
+                    filtrarSeriesPorTemporadaEAvaliacao();
+                    break;
+                case 9:
+                    buscarEpisodioPorTreacho();
+                    break;
+                case 10:
+                    topEpisodiosPorSerie();
+                    break;
+                case 11:
+                    buscarEpisodioDepoisData();
+                    break;
                 case 0:
                     System.out.println("Encerrando o programa...");
                     continuar = false;
                     break;
-
                 default:
                     System.out.println("Opção inválida!");
                     break;
@@ -95,7 +125,7 @@ public class PrincipalAula1 {
         System.out.println("Escolha uma série pelo nome para buscar episódios: ");
         var nomeSerie = leitura.nextLine();
 
-        Optional<Serie> serie = repositorio.findByTituloContainingIgnoreCase(nomeSerie);
+        Optional<Serie> serie = repositorioSerie.findByTituloContainingIgnoreCase(nomeSerie);
 
         if (serie.isPresent()) {
             var serieEncontrada = serie.get();
@@ -112,19 +142,21 @@ public class PrincipalAula1 {
             }
 
             List<Episodio> episodios = temporadas.stream()
-                    // Adicione a verificação de nulo aqui
                     .flatMap(d -> {
                         if (d.episodios() == null) {
-                            return Stream.empty(); // Retorna um stream vazio se a lista de episódios for nula
+                            return Stream.empty();
                         }
-                        return d.episodios().stream();
+                        int temporada = d.numero(); // número da temporada
+                        return d.episodios().stream()
+                                .map(e -> new Episodio(temporada, e, serieEncontrada));
                     })
-                    .map(e -> new Episodio(e.numero(), e, serieEncontrada))
                     .collect(Collectors.toList());
 
+
             serieEncontrada.setEpisodios(episodios);
-            repositorio.save(serieEncontrada);
+
             System.out.println("Episódios buscados e associados à série: " + serieEncontrada.getTitulo());
+            repositorioSerie.save(serieEncontrada);
 
             episodios.forEach(System.out::println);
 
@@ -133,65 +165,84 @@ public class PrincipalAula1 {
         }
     }
 
-    public void buscarSeriePorTitulo(){
-        System.out.println("Escolha uma série pelo nome para buscar episódios: ");
+    public void buscarSeriePorTituloNoBanco() {
+        System.out.println("Digite o título da série para buscar no banco de dados: ");
         var nomeSerie = leitura.nextLine();
-        Optional<Serie> serieBuscada = repositorio.findByTituloContainingIgnoreCase(nomeSerie);
+        serieBusca = repositorioSerie.findByTituloContainingIgnoreCase(nomeSerie);
 
-        if (serieBuscada.isPresent()){
-            System.out.println("Dados da serie: " + serieBuscada.get());
+        if (serieBusca.isPresent()) {
+            System.out.println("Dados da série encontrada no banco: " + serieBusca.get());
         } else {
-            System.out.println("Serie não encontrada!");
+            System.out.println("Série não encontrada no banco de dados!");
         }
     }
 
-    // Em PrincipalAula1.java
-
+    // --- LÓGICA ALTERADA PARA BUSCAR ATORES DO BANCO PRIMEIRO ---
     private void buscarSeriesPorAtor() {
         System.out.println("Digite o nome do ator:");
         var nomeAtor = leitura.nextLine();
 
-        // 1. Buscar o ID do ator
-        var jsonPessoa = consumo.obterDados(ENDERECO_ATOR + API_KEY + "&query=" + nomeAtor.replace(" ", "%20"));
-        DadosResultadoPessoa resultadoPessoa = conversor.obterDados(jsonPessoa, DadosResultadoPessoa.class);
+        // 1. Tenta buscar o ator no banco de dados
+        Optional<Ator> atorDoBanco = repositorioAtor.findByNomeContainingIgnoreCase(nomeAtor);
 
-        if (resultadoPessoa == null || resultadoPessoa.pessoas().isEmpty()) {
-            System.out.println("Ator não encontrado.");
-            return;
-        }
+        if (atorDoBanco.isPresent()) {
+            System.out.println("\n--- Ator encontrado no banco de dados: " + atorDoBanco.get().getNome() + " ---");
+            Set<Serie> seriesDoAtor = atorDoBanco.get().getSeries();
 
-        // Pega o primeiro ator encontrado na lista de resultados
-        DadosPessoa atorEncontrado = resultadoPessoa.pessoas().get(0);
-        System.out.println("Ator encontrado: " + atorEncontrado.name() + " (ID: " + atorEncontrado.id() + ")");
-
-        // 2. Buscar os créditos (séries/filmes) do ator
-        var jsonCreditos = consumo.obterDados(ENDERECO_CREDITOS_PESSOA + atorEncontrado.id() + "/combined_credits?" + API_KEY);
-        DadosCombinedCredits creditos = conversor.obterDados(jsonCreditos, DadosCombinedCredits.class);
-
-        if (creditos == null || creditos.creditos().isEmpty()) {
-            System.out.println("Nenhuma série encontrada para este ator.");
-            return;
-        }
-
-        System.out.println("\nSéries em que " + atorEncontrado.name() + " atuou:");
-        List<Serie> serieBuscada = repositorio.findByAtoresContainingIgnoreCase(nomeAtor);
-
-//        List<String> seriesDoAtor = creditos.creditos().stream()
-//                .filter(c -> "tv".equals(c.mediaType())) // Filtra apenas por séries ("tv" é o tipo de mídia para séries)
-//                .map(DadosCredito::titulo) // Pega o título da série
-//                .distinct() // Remove títulos duplicados, caso o ator esteja em várias temporadas da mesma série
-//                .sorted() // Opcional: ordena os títulos
-//                .collect(Collectors.toList());
-
-        if (serieBuscada.isEmpty()) {
-            System.out.println("Nenhuma série encontrada para este ator (apenas filmes ou outros tipos de mídia).");
+            if (seriesDoAtor.isEmpty()) {
+                System.out.println("Nenhuma série associada a este ator encontrada no banco de dados.");
+            } else {
+                System.out.println("Séries em que " + atorDoBanco.get().getNome() + " atuou (do banco):");
+                seriesDoAtor.stream()
+                        .map(Serie::getTitulo)
+                        .distinct()
+                        .sorted()
+                        .forEach(System.out::println);
+            }
         } else {
-            serieBuscada.forEach(s -> System.out.println(s.getTitulo()));
+            System.out.println("\n--- Ator não encontrado no banco de dados local. Buscando na API... ---");
+            // Lógica existente para buscar na API (mantida como fallback)
+
+            // 1. Buscar o ID do ator na API
+            var jsonPessoa = consumo.obterDados(ENDERECO_PESSOA + API_KEY + "&query=" + nomeAtor.replace(" ", "%20"));
+            DadosResultadoPessoa resultadoPessoa = conversor.obterDados(jsonPessoa, DadosResultadoPessoa.class);
+
+            if (resultadoPessoa == null || resultadoPessoa.pessoas().isEmpty()) {
+                System.out.println("Ator não encontrado na API.");
+                return;
+            }
+
+            DadosPessoa atorEncontradoApi = resultadoPessoa.pessoas().get(0);
+            System.out.println("Ator encontrado na API: " + atorEncontradoApi.name() + " (ID TMDB: " + atorEncontradoApi.id() + ")");
+
+            // 2. Buscar os créditos (séries/filmes) do ator na API
+            var jsonCreditos = consumo.obterDados(ENDERECO_CREDITOS_PESSOA + atorEncontradoApi.id() + "/combined_credits?" + API_KEY);
+            DadosCombinedCredits creditos = conversor.obterDados(jsonCreditos, DadosCombinedCredits.class);
+
+            if (creditos == null || creditos.creditos().isEmpty()) {
+                System.out.println("Nenhuma série encontrada para este ator nos créditos combinados da API.");
+                return;
+            }
+
+            System.out.println("\nSéries em que " + atorEncontradoApi.name() + " atuou (da API):");
+            List<String> seriesDoAtorApi = creditos.creditos().stream()
+                    .filter(c -> "tv".equals(c.mediaType()))
+                    .map(DadosCredito::titulo)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+
+            if (seriesDoAtorApi.isEmpty()) {
+                System.out.println("Nenhuma série de TV encontrada para este ator na API (apenas filmes ou outros tipos de mídia).");
+            } else {
+                seriesDoAtorApi.forEach(System.out::println);
+            }
         }
     }
 
+    @Transactional // <--- MANTENHA ESTA ANOTAÇÃO AQUI! É importante para a transação.
     public Serie getSerieCompleta() {
-        System.out.println("Digite o nome da série para busca");
+        System.out.println("Digite o nome da série para busca na web:");
         var nomeSerie = leitura.nextLine();
         var json = consumo.obterDados(ENDERECO + API_KEY + "&query=" + nomeSerie.replace(" ", "+"));
         DadosResultado resultado = conversor.obterDados(json, DadosResultado.class);
@@ -225,13 +276,27 @@ public class PrincipalAula1 {
             serie.setTotalTemporadas(detalhesSerieCompleta.totalTemporadas());
         }
 
-        List<Genero> generosDaApi = new ArrayList<>();
+        // LINHA CORRIGIDA:
+        Set<Genero> generosDaApi = new HashSet<>(); // <-- Mude de List para Set e de ArrayList para HashSet
         if (dados.getGenreIds() != null) {
             for (Integer generoId : dados.getGenreIds()) {
-                generosDaApi.add(new Genero(generoId, nomeGeneros.getOrDefault(generoId, "Desconhecido")));
+                System.out.println("--- Processando Gênero ID: " + generoId + " ---");
+                Optional<Genero> generoExistente = repositorioGenero.findById(generoId);
+
+                Genero genero;
+                if (generoExistente.isPresent()) {
+                    genero = generoExistente.get();
+                    System.out.println("Gênero ID " + generoId + " JÁ EXISTE no banco. Usando a instância existente.");
+                } else {
+                    genero = new Genero(generoId, nomeGeneros.getOrDefault(generoId, "Desconhecido"));
+                    System.out.println("Gênero ID " + generoId + " NÃO EXISTE no banco. Tentando SALVAR novo gênero...");
+                    repositorioGenero.save(genero);
+                    System.out.println("Gênero ID " + generoId + " SALVO com sucesso.");
+                }
+                generosDaApi.add(genero);
             }
         }
-        serie.setGeneros(generosDaApi); // CORRIGIDO: de setGenero para setGeneros
+        serie.setGeneros(generosDaApi);
 
         try {
             String overview = serie.getSinopse();
@@ -239,17 +304,43 @@ public class PrincipalAula1 {
                 String traducao = MyMemoryTranslate.obterTraducao(overview);
                 serie.setSinopse(traducao);
             }
-            repositorio.save(serie);
+
+            // --- NOVO: Buscar elenco (atores principais) da API e salvá-los no banco ---
+            Set<Ator> atoresPrincipais = new HashSet<>();
+            String jsonCreditosSerie = consumo.obterDados(ENDERECO2 + dados.id() + "/credits?" + API_KEY);
+            DadosCreditos creditosDaSerie = conversor.obterDados(jsonCreditosSerie, DadosCreditos.class);
+
+            if (creditosDaSerie != null && creditosDaSerie.elenco() != null && !creditosDaSerie.elenco().isEmpty()) {
+                // Pega os 3 primeiros atores
+                for (int i = 0; i < Math.min(creditosDaSerie.elenco().size(), 3); i++) {
+                    DadosAtorCreditos atorApi = creditosDaSerie.elenco().get(i);
+                    // Tenta encontrar o ator no banco pelo ID do TMDB
+                    Optional<Ator> atorExistente = repositorioAtor.findById(atorApi.id().longValue());
+
+                    Ator ator;
+                    if (atorExistente.isPresent()) {
+                        ator = atorExistente.get(); // Usa o ator existente do banco
+                    } else {
+                        // Se não existe, cria um novo Ator e salva no repositório de Ator
+                        ator = new Ator(atorApi.id(), atorApi.nome());
+                        repositorioAtor.save(ator);
+                    }
+                    atoresPrincipais.add(ator); // Adiciona o ator (existente ou novo) ao set
+                }
+                serie.setAtores(atoresPrincipais); // Associa o set de atores à série
+            }
+
+            repositorioSerie.save(serie); // Salva a série (que agora tem um set de atores associados)
             return serie;
         } catch (Exception e) {
-            System.err.println("Erro ao processar série e/ou traduzir sinopse: " + e.getMessage());
+            System.err.println("Erro ao processar série e/ou traduzir sinopse ou buscar atores: " + e.getMessage());
             return null;
         }
     }
 
     private void listarSeriesBuscadas() {
-        // Garanta que esta linha chame o método com a @Query configurada no repositório
-        seriesDoBanco = repositorio.findAllWithGeneros();
+        // Buscar todas as séries, incluindo os gêneros e atores (graças ao FetchType.EAGER)
+        seriesDoBanco = repositorioSerie.findAllWithGeneros();
 
         if (seriesDoBanco.isEmpty()) {
             System.out.println("Nenhuma série encontrada no banco de dados.");
@@ -258,9 +349,7 @@ public class PrincipalAula1 {
 
         seriesDoBanco.forEach(serie -> {
             String generosFormatados;
-            // CORRIGIDO: de serie.getGenero() para serie.getGeneros()
-            if (!serie.getGeneros().isEmpty()) {
-                // g.getNome() está correto aqui, pois Genero é uma classe agora
+            if (serie.getGeneros() != null && !serie.getGeneros().isEmpty()) {
                 generosFormatados = serie.getGeneros().stream()
                         .map(g -> g.getNome())
                         .collect(Collectors.joining(", "));
@@ -268,11 +357,22 @@ public class PrincipalAula1 {
                 generosFormatados = "Nenhum gênero";
             }
 
+            String nomesAtores = "";
+            if (serie.getAtores() != null && !serie.getAtores().isEmpty()) {
+                nomesAtores = serie.getAtores().stream()
+                        .map(Ator::getNome)
+                        .collect(Collectors.joining(", "));
+            } else {
+                nomesAtores = "N/A";
+            }
+
+
             System.out.println(" Série: " + serie.getTitulo() +
                     "\n Avaliação: " + serie.getAvaliacao() +
                     "\n Gêneros: " + generosFormatados +
                     "\n Sinopse: " + serie.getSinopse() +
                     "\n Categoria: " + serie.getCategoria().getNomePortugues() +
+                    "\n Atores Principais: " + nomesAtores + // Exibir atores do Set
                     "\n");
         });
     }
@@ -286,10 +386,72 @@ public class PrincipalAula1 {
             return;
         }
 
-        // Lembre-se que getResultsGenero() deve retornar uma lista de objetos que Jackson pode mapear para Genero
-        // e que esses objetos tenham getId() e getNome() ou campos públicos 'id' e 'nome'.
         resultado.getResultsGenero().forEach(genero ->
                 nomeGeneros.put(genero.getId(), genero.getNome())
         );
     }
+
+    private void buscarTop5Series() {
+        List<Serie> seriesTop = repositorioSerie.findTop5ByOrderByAvaliacaoDesc();
+        seriesTop.forEach(s -> System.out.println(s.getTitulo() + " avaliação: " + s.getAvaliacao()));
+    }
+
+    private void buscarSeriesPorCategoria(){
+        System.out.println("Deseja buscar séries de qual categoria/gênero?");
+        var nomeGenero = leitura.nextLine();
+        Categoria categoria = Categoria.fromPortugues(nomeGenero);
+
+        List<Serie> seriesPorCategoria = repositorioSerie.findByCategoria(categoria);
+        if (seriesPorCategoria.isEmpty()) {
+            System.out.println("Nenhuma série encontrada para a categoria: " + nomeGenero);
+        } else {
+            System.out.println("Séries da categoria " + categoria.getNomePortugues() + ":");
+            seriesPorCategoria.forEach(System.out::println);
+        }
+    }
+
+    private void filtrarSeriesPorTemporadaEAvaliacao(){
+        System.out.println("Filtrar series até quantas temporadas?");
+        var totalTemporadas = leitura.nextInt();
+        leitura.nextLine();
+        System.out.println("Com avaliação a partir de que valor?");
+        var avaliacao = leitura.nextDouble();
+        leitura.nextLine();
+        List<Serie> filtroSerie = repositorioSerie.seriesPorTemporadaEAvaliacao(totalTemporadas, avaliacao);
+        //List<Serie> filtroSerie = repositorioSerie.findByTotalTemporadasLessThanEqualAndAvaliacaoGreaterThanEqual(totalTemporadas, avaliacao);
+        System.out.println("*** Series filtradas ***");
+        filtroSerie.forEach(s -> System.out.println(s.getTitulo() + " - avaliação: " + s.getAvaliacao()));
+    }
+
+    private void buscarEpisodioPorTreacho(){
+        System.out.println("Digite o nome do trecho:");
+        var trechoEpisodio = leitura.nextLine();
+        List<Episodio> episodiosEncontrados = repositorioSerie.episodiosPorTrechos(trechoEpisodio);
+        episodiosEncontrados.forEach(e -> System.out.printf("Serie: %s Temporada %s - Episodio %s - %s\n",
+                e.getSerie().getTitulo(), e.getTemporada(), e.getNumero(), e.getTitulo()));
+    }
+
+    private void topEpisodiosPorSerie(){
+        buscarSeriePorTituloNoBanco();
+        if (serieBusca.isPresent()){
+            Serie serie = serieBusca.get();
+            List<Episodio> topEpisodios = repositorioSerie.topEpisodiosPorSerie(serie);
+            topEpisodios.forEach(e -> System.out.printf("Serie: %s Temporada %s - Episodio %s - %s Avaliação %s\n",
+                    e.getSerie().getTitulo(), e.getTemporada(), e.getNumero(), e.getTitulo(), e.getAvaliacao()));
+        }
+    }
+
+    private void buscarEpisodioDepoisData(){
+        buscarSeriePorTituloNoBanco();
+        if (serieBusca.isPresent()){
+            Serie series = serieBusca.get();
+            System.out.println("Digite a data desejada: ");
+            var anoLancamento = leitura.nextInt();
+            leitura.nextLine();
+
+            List<Episodio> episodiosAno = repositorioSerie.episodiosPorSerieAno(series, anoLancamento);
+            episodiosAno.forEach(System.out::println);
+        }
+    }
+
 }

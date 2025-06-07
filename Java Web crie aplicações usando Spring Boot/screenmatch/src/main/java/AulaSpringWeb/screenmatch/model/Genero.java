@@ -3,15 +3,14 @@ package AulaSpringWeb.screenmatch.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity // <-- ESSA ANOTAÇÃO É CRUCIAL!
 @Table(name = "generos")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Genero { // <-- DEVE SER 'class Genero', NÃO 'record Genero' NEM 'class Generos'
     @Id
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @JsonAlias("name")
