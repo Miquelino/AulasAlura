@@ -1,9 +1,6 @@
 package Exercicio2;
 
 import Exercicio2.Principal.Principal;
-import Exercicio2.repository.CategoriaRepository;
-import Exercicio2.repository.PedidoRepository;
-import Exercicio2.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,14 +12,12 @@ public class main implements CommandLineRunner {
 	@Autowired
 	private Principal principal;
 
-
 	public static void main(String[] args) {
 		SpringApplication.run(main.class, args);
 	}
 
 	@Override
-	public void run (String... args) throws Exception{
+	public void run(String... args) throws Exception {
 		principal.exibirMenu();
 	}
-
 }

@@ -8,13 +8,21 @@ import Exercicio2.repository.FornecedorRepository;
 import Exercicio2.repository.PedidoRepository;
 import Exercicio2.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
+import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
-
+@Component
 public class Exercicio1 {
     Scanner leitura = new Scanner(System.in);
+
+    // Define o formato esperado da data
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    LocalDate dataParaBusca;
 
     @Autowired
     private CategoriaRepository categoriaRepository;
@@ -26,86 +34,94 @@ public class Exercicio1 {
     private FornecedorRepository fornecedorRepository;
 
     public void exercicio() {
-        var menu = """
-                1 - Retorne todos os produtos com o nome exato fornecido.
-                2 - Retorne todos os produtos associados a uma categoria específica.
-                3 - Retorne produtos com preço maior que o valor fornecido.
-                4 - Retorne produtos com preço menor que o valor fornecido.
-                5 - Retorne produtos cujo nome contenha o termo especificado.
-                6 - Retorne pedidos que ainda não possuem uma data de entrega.
-                7 - Retorne pedidos com data de entrega preenchida.
-                8 - Retorne produtos de uma categoria ordenados pelo preço de forma crescente.
-                9 - Retorne produtos de uma categoria ordenados pelo preço de forma decrescente.
-                10 - Retorne a contagem de produtos em uma categoria específica.
-                11 - Retorne a contagem de produtos cujo preço seja maior que o valor fornecido.
-                12 - Retorne produtos com preço menor que o valor fornecido ou cujo nome contenha o termo especificado.
-                13 - Retorne pedidos feitos após uma data específica.
-                14 - Retorne pedidos feitos antes de uma data específica. , 15 - Retorne pedidos feitos em um intervalo de datas.
-                16 - Retorne os três produtos mais caros.
-                17 - Retorne os cinco produtos mais baratos de uma categoria.
-                0 - Sair
-                """;
+        boolean continuar = true;
+        while (continuar) {
 
-        System.out.println(menu);
-        var opcao = leitura.nextInt();
-        leitura.nextLine();
+            var menu = """
+                    1 - Retorne todos os produtos com o nome exato fornecido.
+                    2 - Retorne todos os produtos associados a uma categoria específica.
+                    3 - Retorne produtos com preço maior que o valor fornecido.
+                    4 - Retorne produtos com preço menor que o valor fornecido.
+                    5 - Retorne produtos cujo nome contenha o termo especificado.
+                    6 - Retorne pedidos que ainda não possuem uma data de entrega.
+                    7 - Retorne pedidos com data de entrega preenchida.
+                    8 - Retorne produtos de uma categoria ordenados pelo preço de forma crescente.
+                    9 - Retorne produtos de uma categoria ordenados pelo preço de forma decrescente.
+                    10 - Retorne a contagem de produtos em uma categoria específica.
+                    11 - Retorne a contagem de produtos cujo preço seja maior que o valor fornecido.
+                    12 - Retorne produtos com preço menor que o valor fornecido ou cujo nome contenha o termo especificado.
+                    13 - Retorne pedidos feitos após uma data específica.
+                    14 - Retorne pedidos feitos antes de uma data específica.
+                    15 - Retorne pedidos feitos em um intervalo de datas.
+                    16 - Retorne os três produtos mais caros.
+                    17 - Retorne os cinco produtos mais baratos de uma categoria.
+                    0 - Sair
+                    """;
 
-        switch (opcao) {
-            case 1:
-                buscarNomeProduto();
-                break;
-            case 2:
-                produtoCategoriaEspecifica();
-                break;
-            case 3:
-                precoProdutoMaiorFornecido();
-                break;
-            case 4:
-                precoProdutoMenorFornecido();
-                break;
-            case 5:
-                produtoNomeTermoExpecifico();
-                break;
-            case 6:
-                pedidosSemDataEntrega();
-                break;
-            case 7:
-                pedidosDataEntrega();
-                break;
-            case 8:
-                produtoPrecoOrdemCrescente();
-                break;
-            case 9:
-                produtoPrecoOrdemDecrescente();
-                break;
-            case 10:
-                produtoNumeroCategoria();
-                break;
-            case 11:
-                produtoNumeroValorMaior();
-                break;
-            case 12:
-                produtoNumeroValorMenor();
-                break;
-            case 13:
-                pedidosFeitoDataX();
-                break;
-            case 14:
-                pedidosFeitosAntesDataX();
-                break;
-            case 15:
-                pedidosFeitoEntreDataX();
-                break;
-            case 16:
-                retorne3ProdutosMaisCaros();
-                break;
-            case 17:
-                retorne5ProdutosBaratosCategoria();
-                break;
-            case 0:
-                break;
-            default:
-                break;
+            System.out.println(menu);
+            var opcao = leitura.nextInt();
+            leitura.nextLine();
+
+            switch (opcao) {
+                case 1:
+                    buscarNomeProduto();
+                    break;
+                case 2:
+                    produtoCategoriaEspecifica();
+                    break;
+                case 3:
+                    precoProdutoMaiorFornecido();
+                    break;
+                case 4:
+                    precoProdutoMenorFornecido();
+                    break;
+                case 5:
+                    produtoNomeTermoExpecifico();
+                    break;
+                case 6:
+                    pedidosSemDataEntrega();
+                    break;
+                case 7:
+                    pedidosDataEntrega();
+                    break;
+                case 8:
+                    produtoPrecoOrdemCrescente();
+                    break;
+                case 9:
+                    produtoPrecoOrdemDecrescente();
+                    break;
+                case 10:
+                    produtoNumeroCategoria();
+                    break;
+                case 11:
+                    produtoNumeroValorMaior();
+                    break;
+                case 12:
+                    produtoNumeroValorMenor();
+                    break;
+                case 13:
+                    pedidosFeitoDataX();
+                    break;
+                case 14:
+                    pedidosFeitosAntesDataX();
+                    break;
+                case 15:
+                    pedidosFeitoEntreDataX();
+                    break;
+                case 16:
+                    retorne3ProdutosMaisCaros();
+                    break;
+                case 17:
+                    retorne5ProdutosBaratosCategoria();
+                    break;
+                case 0:
+                    System.out.println("Voltando ao menu anterior");
+                    continuar = false;
+                    break;
+                default:
+                    System.out.println("Opção inválida!");
+                    break;
+            }
         }
     }
 
@@ -178,30 +194,58 @@ public class Exercicio1 {
     }
 
     public void produtoNumeroValorMaior() {
-
+        System.out.println("Passe um valor: ");
+        var valor = leitura.nextDouble();
+        long quantidade = produtoRepository.countByPrecoGreaterThan(valor);
+        System.out.println("Número de produtos com preço maior que " + valor + ": " + quantidade);
     }
 
     public void produtoNumeroValorMenor() {
-
+        //Retorne produtos com preço menor que o valor fornecido ou cujo nome contenha o termo especificado.
+        System.out.println("Digite um valor: ");
+        var valor = leitura.nextDouble();
+        System.out.println("Digite um termo: ");
+        var termo = leitura.nextLine();
+        List<Produto> produtos = produtoRepository.findByPrecoLessThanOrNomeContaining(valor, termo);
+        produtos.forEach(System.out::println);
     }
 
     public void pedidosFeitoDataX() {
-
+        System.out.println("Digite a data do pedido: (dd/mm/yyyy)");
+        var data = leitura.nextLine();
+        dataParaBusca = LocalDate.parse(data, formatter);
+        List<Pedido> pedidos = pedidoRepository.findByDataAfter(dataParaBusca);
+        pedidos.forEach(System.out::println);
     }
 
     public void pedidosFeitosAntesDataX() {
-
+        System.out.println("Digite a data do pedido: (dd/mm/yyyy)");
+        var data = leitura.nextLine();
+        dataParaBusca = LocalDate.parse(data, formatter);
+        List<Pedido> pedidos = pedidoRepository.findByDataBefore(dataParaBusca);
+        pedidos.forEach(System.out::println);
     }
 
     public void pedidosFeitoEntreDataX() {
-
+        System.out.println("Digite duas datas e voltara os pedidos entre elas: (dd/mm/yyyy)");
+        var dataInicio = leitura.nextLine();
+        var dataFim = leitura.nextLine();
+        dataParaBusca = LocalDate.parse(dataInicio, formatter);
+        LocalDate dataParaBusca1 = LocalDate.parse(dataFim, formatter);
+        List<Pedido> pedidos = pedidoRepository.findByDataBetween(dataParaBusca, dataParaBusca1);
+        pedidos.forEach(System.out::println);
     }
 
     public void retorne3ProdutosMaisCaros() {
-
+        List<Produto> produtos = produtoRepository.findTop3ProdutosComMaiorPreco();
+        produtos.forEach(System.out::println);
     }
 
     public void retorne5ProdutosBaratosCategoria() {
+        System.out.println("Digite uma categoria: ");
+        var categoria = leitura.nextLine();
+        List<Produto> produtos = produtoRepository.findTop5ByCategoriaNomeOrderByPrecoAsc(categoria);
+        produtos.forEach(System.out::println);
 
     }
 }

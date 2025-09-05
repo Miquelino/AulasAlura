@@ -15,23 +15,17 @@ import java.util.Scanner;
 @Component
 public class Principal {
 
-    private Exercicio2 exercicio2;
+    @Autowired
     private Exercicio1 exercicio;
-    Scanner leitura = new Scanner(System.in);
 
     @Autowired
-    private CategoriaRepository categoriaRepository;
-    @Autowired
-    private ProdutoRepository produtoRepository;
-    @Autowired
-    private PedidoRepository pedidoRepository;
-    @Autowired
-    private FornecedorRepository fornecedorRepository;
+    private Exercicio2 exercicio2;
+
+    Scanner leitura = new Scanner(System.in);
 
     public void exibirMenu() {
         boolean continuar = true;
         while (continuar) {
-
             var menuExercicios = """
                     1 - Exercicio
                     2 - Exercicio
@@ -43,23 +37,17 @@ public class Principal {
             leitura.nextLine();
 
             switch (opcaoExercicio) {
-                case 1:
-                    exercicio.exercicio();
-                    break;
-                case 2:
-                    exercicio2.exercicio();
-                    break;
-
-                case 0:
+                case 1 -> exercicio.exercicio();
+                case 2 -> exercicio2.exercicio();
+                case 0 -> {
                     System.out.println("Saindo....");
                     continuar = false;
-                    break;
-
-                default:
-                    System.out.println("Opção invalida!");
-                    break;
+                }
+                default -> System.out.println("Opção invalida!");
             }
-
+        }
+    }
+}
 
 //        // Criando categorias
 //        Categoria categoriaEletronicos = new Categoria("Eletrônicos");
@@ -108,6 +96,3 @@ public class Principal {
 //                System.out.println("Produto: " + produto.getNome() +
 //                        ", Fornecedor: " + produto.getFornecedor().getNome())
 //        );
-        }
-    }
-}
