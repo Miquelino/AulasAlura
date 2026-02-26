@@ -1,6 +1,8 @@
 package Primeiro_Projeto_Banco.First.Entidades.Cliente;
 
 import Primeiro_Projeto_Banco.First.Entidades.Conta.*;
+import Primeiro_Projeto_Banco.First.Entidades.Endereco.Endereco;
+import Primeiro_Projeto_Banco.First.Entidades.Endereco.EnderecoDTO;
 import Primeiro_Projeto_Banco.First.Entidades.Repositorios.ContaRepository;
 import jakarta.persistence.*;
 import jdk.jfr.Enabled;
@@ -37,12 +39,16 @@ public class Cliente {
     @Column(nullable = false)
     private TipoConta tipoConta;
 
+    @OneToOne(mappedBy = "endereco", cascade = CascadeType.ALL, orphanRemoval = true)
+    private EnderecoDTO endereco;
+
     public void abrirConta(ClienteDTO dadosCliente, int numeroContaGerado) {
         this.nome = dadosCliente.nome();
         this.cpf = dadosCliente.cpf();
         this.email = dadosCliente.email();
         this.telefone = dadosCliente.telefone();
         this.deposito = dadosCliente.deposito();
+        this.endereco = dadosCliente.endereco();
 
         try {
             this.tipoConta = TipoConta.fromCodigo(dadosCliente.tipoConta());

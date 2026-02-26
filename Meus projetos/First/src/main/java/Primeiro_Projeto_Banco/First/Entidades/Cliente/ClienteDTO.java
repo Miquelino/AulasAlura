@@ -1,6 +1,8 @@
 package Primeiro_Projeto_Banco.First.Entidades.Cliente;
 
 import Primeiro_Projeto_Banco.First.Entidades.Conta.TipoConta;
+import Primeiro_Projeto_Banco.First.Entidades.Endereco.Endereco;
+import Primeiro_Projeto_Banco.First.Entidades.Endereco.EnderecoDTO;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,6 +29,8 @@ public record ClienteDTO(
         String telefone,
 
         @NotNull(message = "Deposito é obrigatório para abertura de conta")
-        Double deposito
+        Double deposito,
 
+        @NotBlank
+        EnderecoDTO endereco
 ) {}

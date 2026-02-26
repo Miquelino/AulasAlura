@@ -1,0 +1,7 @@
+Recado importante:
+	Para não se perder muito o foco da orientação a objetos e também não complicar demais a aplicação
+	de exemplo, algumas decisões foram tomadas. A principal é que nenhum tratamento de erro foi feito. 
+	Ou seja, se valores errados forem digitados propositalmente, a aplicação irá parar de funcionar.
+    Então tome cuidado nas entradas de valores. Mensagens de "sucesso" ou "erro" também não foram
+    utilizadas pelo mesmo motivo. As validações de entradas de dados seguem o mesmo raciocínio.
+ 
