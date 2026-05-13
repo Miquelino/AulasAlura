@@ -2,7 +2,6 @@ package checkpoint.carreira.ackend.repository;
 
 import checkpoint.carreira.ackend.entities.Reserva;
 import checkpoint.carreira.ackend.entities.StatusReserva;
-import checkpoint.carreira.ackend.entities.Usuario;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

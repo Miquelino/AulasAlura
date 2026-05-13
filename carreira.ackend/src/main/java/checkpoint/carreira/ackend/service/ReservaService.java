@@ -74,8 +74,11 @@ public class ReservaService {
     public Reserva atualizarInformacoes(Long id, ReservaDTO dados) {
 
         Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sala não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Reserva não encontrada"));
 
-        return reserva; // JPA faz o update automaticamente (dirty checking)
+        reserva.setInicio(dados.inicio());
+        reserva.setFim(dados.fim());
+
+        return reserva;
     }
 }

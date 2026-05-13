@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reserva")
 @Getter
+@Setter
 public class Reserva {
 
     @Id
@@ -20,7 +21,7 @@ public class Reserva {
 
     private LocalDateTime fim;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sala_id", nullable = false)
     private Sala sala;
 

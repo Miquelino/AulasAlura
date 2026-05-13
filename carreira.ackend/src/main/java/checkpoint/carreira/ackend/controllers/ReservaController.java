@@ -28,19 +28,19 @@ public class ReservaController {
             @RequestBody @Valid ReservaDTO reservaDTO,
             UriComponentsBuilder uriBuilder) {
 
-        Usuario usuario = service.criarReserva(reservaDTO).getUsuario();
+        Reserva reserva = service.criarReserva(reservaDTO);
 
         var uri = uriBuilder.path("/reservasala/{id}")
-                .buildAndExpand(usuario.getId())
+                .buildAndExpand(reserva.getId())
                 .toUri();
 
         return ResponseEntity.created(uri)
-                .body(new UsuarioDetalhamentoDTO(usuario));
+                .body(new ReservaDTO(reserva));
     }
 
     @GetMapping("/listarReservas")
     public ResponseEntity<Page<ReservaDTO>> listar(
-            @PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) {
+            @PageableDefault Pageable paginacao) {
 
         Page<ReservaDTO> page = service
                 .listar(paginacao)
@@ -57,7 +57,7 @@ public class ReservaController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/atualizarUsuario/{id}")
+    @PutMapping("/alterarReserva/{id}")
     @Transactional
     public ResponseEntity<ReservaDTO> atualizar(
             @PathVariable Long id,
