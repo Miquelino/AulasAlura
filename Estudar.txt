@@ -1,0 +1,5 @@
+Spring Boot
+Request/Response/End Point 
+Deploy
+Design Patters
+O Mockito é uma biblioteca para fazer Mocks, enquanto o Hamcrest e o AssertJ são bibliotecas para deixar o código de assertivas do JUnit mais simples. Assim, não precisamos nos preocupar com adicionar o JUnit ao projeto.
