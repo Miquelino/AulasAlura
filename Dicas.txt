@@ -1,0 +1,6 @@
+senha GitHub repositório Bootcamp Santander: Eu sou santista
+
+Dicas de atalhos InteliJJ
+CTRL + D = duplica a linha
+ALT + INS = ABRE AS OPÇÕES DE CONSTRUTOR, GET E SET E ETC
+CTRL + BARRA = COMENTA LINHAS
